@@ -5,14 +5,14 @@ import React, { useState, useEffect } from 'react';
 import { CalculatorFilled } from "@ant-design/icons";
 import Link from 'next/link';
 
-type FieldType = {
+type RequestForm = {
   total: number;
   fromKaspi?: number;
   fromOther?: number;
   fromCash?: number;
 };
 
-export const CalculatorPage: React.FC = () => {
+const CalculatorPage = () => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState<boolean>(false);
   const [currentTime, setCurrentTime] = useState<string>('');
@@ -37,7 +37,7 @@ export const CalculatorPage: React.FC = () => {
     return () => clearInterval(intervalId);
   }, []);
 
-  const onFinish = async (values: FieldType) => {
+  const onFinish = async (values: RequestForm) => {
     setLoading(true);
     try {
       const response = await fetch('/api/calculate', {
