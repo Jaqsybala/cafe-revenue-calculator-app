@@ -1,12 +1,11 @@
 'use client'
 
-import { Button, Form, InputNumber, notification } from 'antd';
+import { Button, Form, InputNumber, notification, Row } from 'antd';
 import React, { useState, useEffect } from 'react';
 import { CalculatorFilled } from "@ant-design/icons";
 import Link from 'next/link';
 
 type RequestForm = {
-  total: number;
   fromKaspi?: number;
   fromOther?: number;
   fromCash?: number;
@@ -16,6 +15,7 @@ const CalculatorPage = () => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState<boolean>(false);
   const [currentTime, setCurrentTime] = useState<string>('');
+  const [total, setTotal] = useState<number>(0);
 
   useEffect(() => {
     const updateCurrentTime = () => {
@@ -48,18 +48,21 @@ const CalculatorPage = () => {
         body: JSON.stringify(values),
       });
 
+      const result = await response.json();
+
       if (response.ok) {
+        setTotal(result.total);
         notification.success({
-          message: 'Все расчеты верны.',
+          message: 'Успешно рассчитано',
         });
       } else {
         notification.error({
-          message: 'Прошу проверить введенные данные.',
+          message: result.message,
         });
       }
     } catch (error) {
       notification.error({
-        message: 'Something went wrong. Please try again.',
+        message: 'Что-то пошло не так! Попробуйте ещё раз',
       });
     } finally {
       setLoading(false);
@@ -81,25 +84,7 @@ const CalculatorPage = () => {
           layout="vertical"
         >
           <h1 className="text-center font-medium text-2xl mb-4">Калькулятор выручки</h1>
-
-          <Form.Item
-            label="Общая сумма выручки за день"
-            name="total"
-            rules={[
-              {
-                required: true,
-                message: "Пожалуйста, введите общую сумму выручки за день",
-              },
-            ]}
-            className="mb-2"
-          >
-            <InputNumber
-              addonAfter="₸"
-              size="large"
-              className="w-full"
-            />
-          </Form.Item>
-
+          
           <Form.Item
             label="Сумма дохода с Каспи Банка"
             name="fromKaspi"
@@ -153,6 +138,10 @@ const CalculatorPage = () => {
               className="w-full"
             />
           </Form.Item>
+
+          <Row className="text-center my-4">
+            <span className="text-xl">Итог: {total}₸</span>
+          </Row>
 
           <Form.Item>
             <Button

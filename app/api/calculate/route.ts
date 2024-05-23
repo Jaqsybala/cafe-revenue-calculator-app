@@ -1,23 +1,33 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(req: NextRequest) {
-  const body = await req.json();
+  try {
+    const body = await req.json();
+    const { fromKaspi = 0, fromOther = 0, fromCash = 0 } = body;
 
-  const calculation = body.total == body.fromKaspi + body.fromOther + body.fromCash; 
-  if (calculation)
-  { 
-    return new NextResponse(JSON.stringify({ success: true }), {
-      status: 200,
+    const total = fromKaspi + fromOther + fromCash;
+
+    if (total > 0) {
+      return new NextResponse(JSON.stringify({ success: true, total }), {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+    } else {
+      return new NextResponse(JSON.stringify({ success: false, message: 'Общая выручка за день должна быть больше нуля' }), {
+        status: 400,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+    }
+  } catch (error) {
+    return new NextResponse(JSON.stringify({ success: false, message: 'Некорректные данные' }), {
+      status: 400,
       headers: {
         'Content-Type': 'application/json',
       },
-   });
-  }
-
-  return new NextResponse(JSON.stringify({ success: false }), {
-    status: 400,
-    headers: {
-      'Content-Type': 'application/json',
-      }
     });
+  }
 }
